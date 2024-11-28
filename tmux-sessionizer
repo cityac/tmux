@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# session=$(find  ~/personal ~/work/projects ~/reload2024 $(pwd) -mindepth 1 -maxdepth 1 -type d | fzf)
+
+# dirs=~/personal\ ~/work/projects\ ~/reload2024
+# [ "$(pwd)" != "$HOME" ] && dirs="$dirs $(pwd)"
+# session=$(find $dirs -mindepth 1 -maxdepth 1 -type d | fzf)
+
+# Check if the current directory is not $HOME
+if [ "$(pwd)" != "$HOME" ]; then
+    # Include current directory in the find command
+    session=$(find ~/personal ~/work/projects ~/reload2024 "$(pwd)" -mindepth 1 -maxdepth 1 -type d | fzf)
+else
+    # Exclude current directory
+    session=$(find ~/personal ~/work/projects ~/reload2024 -mindepth 1 -maxdepth 1 -type d | fzf)
+fi
+
+
+session_name=$(basename "$session" | tr . _)
+echo "$session"
+
+if ! tmux has-session -t "$session_name" 2> /dev/null; then
+	#echo NOSESSION
+	tmux new-session -s "$session_name" -c "$session" -d
+fi
+
+if tmux list-clients 2>/dev/null | grep -q "^"; then
+    tmux switch-client -t "$session_name"
+else
+    echo "No active tmux client found. Attaching to the session instead..."
+    tmux attach-session -t "$session_name" || echo "Session '$session_name' does not exist."
+fi
+
+# tmux switch-client -t "$session_name"
+
