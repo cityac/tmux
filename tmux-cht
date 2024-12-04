@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# languages=$(echo "golang typescript js" | tr " " "\n")
+
+# core_utils=$(echo "git find xargs sed awk" | tr " " "\n")
+
+SRC_DIR=$(dirname "$0")
+languages=$(cat $SRC_DIR/.tmux-cht-languages | tr " " "\n")
+
+core_utils=$(cat $SRC_DIR/.tmux-cht-utils | tr " " "\n")
+
+
+selected=$(echo -e "$languages\n$core_utils" | fzf)
+
+if [[ -z "$selected" ]]; then
+	echo "No selection was made. Exiting..." >&2	
+	exit 0
+fi
+
+read -p "GIMMI YOUR QUERY for $selected: " query
+
+if echo "$languages" | grep -qs $selected; then
+	tmux split-window -p 50 -h bash -c "curl cht.sh/$selected/$(echo "$query" | tr " " "+") | less"
+else 
+	tmux split-window -p 50 -h bash -c "curl cht.sh/$selected~$query | less"
+fi

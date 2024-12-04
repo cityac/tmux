@@ -1,13 +1,8 @@
 #!/bin/bash
-
-# session=$(find  ~/personal ~/work/projects ~/reload2024 $(pwd) -mindepth 1 -maxdepth 1 -type d | fzf)
-
-# dirs=~/personal\ ~/work/projects\ ~/reload2024
-# [ "$(pwd)" != "$HOME" ] && dirs="$dirs $(pwd)"
-# session=$(find $dirs -mindepth 1 -maxdepth 1 -type d | fzf)
-
+if [[ $# -eq 1 ]]; then
+     session=$1
 # Check if the current directory is not $HOME
-if [ "$(pwd)" != "$HOME" ]; then
+elif [ "$(pwd)" != "$HOME" ]; then
     # Include current directory in the find command
     session=$(find ~/personal ~/work/projects ~/reload2024 "$(pwd)" -mindepth 1 -maxdepth 1 -type d | fzf)
 else
@@ -17,7 +12,6 @@ fi
 
 
 session_name=$(basename "$session" | tr . _)
-echo "$session"
 
 if ! tmux has-session -t "$session_name" 2> /dev/null; then
 	#echo NOSESSION
